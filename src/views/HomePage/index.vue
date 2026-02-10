@@ -1,6 +1,5 @@
 <template>
     <div>
-        <Header />
         <Banner />
         <!--TOFIX:NavMenu组件样式有问题，需求为保持所有组件宽度相同，建议方案：1.手动为所有组件设置相同宽度 2.父容器设置左右padding，实现子组件同宽-->
         <NavMenu />
@@ -12,7 +11,7 @@
             :mainEvent="item.mainEvent"
             :subEvents="item.subEvents"
         />
-        <Footer />
+
     </div>
 </template>
 

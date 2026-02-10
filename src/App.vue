@@ -1,12 +1,14 @@
 <script setup>
-import HomePage from './views/HomePage/index.vue'
+import HomePage from './views/HomePage/index.vue';
+import Layout from './components/Layout/Layout.vue';
 </script>
 
 <template>
-  
-  <div>
+  <!--使用Layout组件在根组件为所有页面提供统一的布局结构，包括Header、Footer等公共组件-->
+  <!--TODO: Layout组件待优化，如引入Router-view实现路由管理-->
+  <Layout>
     <HomePage />
-  </div>
+  </Layout>
 </template>
 
 <style scoped>
