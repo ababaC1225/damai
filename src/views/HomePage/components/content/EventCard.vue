@@ -1,42 +1,26 @@
 <template>
-  <div class="card-right">
-    <div
-      class="card-item"
-      v-for="(item, index) in events"
-      :key="index"
-      @click="$emit('event-click', item)"
-    >
-      <img :src="item.image" />
-      <div class="card-item-info">
-        <div class="title">{{ item.name }}</div>
-        <div class="location">{{ item.location }}</div>
-        <div class="time">{{ item.time }}</div>
-        <div class="time"></div>
-        <div class="price">¥{{ item.price }}
-          <span>起</span>
-        </div>
-
+  <div class="card-item" @click="$emit('event-click', event)">
+    <img :src="event.image" />
+    <div class="card-item-info">
+      <div class="title">{{ event.name }}</div>
+      <div class="location">{{ event.location }}</div>
+      <div class="time">{{ event.time }}</div>
+      <div class="time"></div>
+      <div class="price">
+        ¥{{ event.price }}
+        <span>起</span>
       </div>
-      
     </div>
   </div>
 </template>
 
 <script setup>
 defineProps({
-  events: Array
+  event: Object
 })
 </script>
 
 <style scoped>
-.card-right {
-  display: inline-block;
-  width: 870px;
-  margin-left: 20px;
-  height: 360px;
-  vertical-align: top;
-  overflow: hidden;
-}
 .card-item{
   width: 273px;
   height: 160px;
@@ -105,3 +89,5 @@ defineProps({
     text-overflow: ellipsis;
 }
 </style>
+
+
