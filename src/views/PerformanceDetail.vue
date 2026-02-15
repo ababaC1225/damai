@@ -17,7 +17,7 @@
 					<div class="session-selector" v-if="sessions && sessions.length">
 						<div style="margin:8px 0">选择场次：</div>
 						<div style="display:flex;flex-wrap:wrap;gap:8px">
-							<el-button v-for="s in sessions" :key="s.id" :type="String(s.id) === String(selectedSessionId) ? 'primary' : 'default'" size="small" @click="selectSession(s.id)">
+							<el-button  v-for="s in sessions" :key="s.id" :type="String(s.id) === String(selectedSessionId) ? 'primary' : 'default'" size="small" @click="selectSession(s.id)">
 								{{ formatDate(s.sessionTime || s.startTime || s.time) }}
 							</el-button>
 						</div>
