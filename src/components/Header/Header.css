@@ -23,7 +23,7 @@
   margin: 0 auto;
   position: relative;
   font-size: 14px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ======================
