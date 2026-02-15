@@ -1,0 +1,95 @@
+/* 整体 */
+.dm-footer {
+  width: 100%;
+  background: #f8f8f8;
+  border-top: 1px solid #e5e5e5;
+  font-size: 13px;
+  color: #111;
+}
+
+.w1200 {
+  width: 1200px;
+  margin: 0 auto;
+}
+
+.dm-footer a {
+  color: #111;
+  text-decoration: none;
+}
+
+.dm-footer a:hover {
+  color: #111;
+}
+
+/* 顶部链接 */
+.footer-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 36px 0;
+}
+
+.footer-links-grep {
+  margin: 0 20px;
+  color: #999;
+}
+
+/* 主体区域 */
+.footer-ft {
+  display: flex;
+  padding-bottom: 58px;
+}
+
+/* 左侧 */
+.footer-ft-fl {
+  display: flex;
+  align-items: center;
+  margin-right: 100px;
+}
+
+.footer-ft-logo img {
+  height: 40px;
+}
+
+.footer-ft-code-box {
+  margin-left: 40px;
+  text-align: center;
+}
+
+.footer-ft-code {
+  width: 87px;
+  height: 87px;
+  margin-bottom: 6px;
+}
+
+/* 右侧文字 */
+.footer-ft-fr {
+  flex: 1;
+}
+
+.footer-ft-words {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.footer-ft-words li {
+  margin-right: 6px;
+  line-height: 20px;
+}
+
+.footer-ft-grep {
+  color: #999;
+}
+
+/* 底部图标区域（重点改这里） */
+.footer-ft-img {
+  display: flex;          /* 一字排开 */
+  align-items: center;
+  margin-top: 12px;
+}
+
+.footer-ft-img img {
+  height: 30px;
+  margin-right: 12px;
+}

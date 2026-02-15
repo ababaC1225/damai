@@ -1,0 +1,374 @@
+/* ======================
+   Header 外层
+====================== */
+.dm-header-wrap {
+  width: 100%;
+  height: 72px;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(220, 220, 220, 0.5);
+}
+
+.city-header-wrap::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+}
+
+.dm-header-box {
+  width: 1200px;
+  height: 72px;
+  margin: 0 auto;
+  position: relative;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* ======================
+   LOGO
+====================== */
+.dm-header-box .i-logo {
+  width: 92px;
+  float: left;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+/* ======================
+   城市选择
+====================== */
+.dm-header-box .location-header {
+  float: left;
+  height: 72px;
+  margin-left: 54px;
+  line-height: 72px;
+  position: relative;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dm-header-box .location-header .i-icon-location {
+  width: 12px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.dm-header-box .location-header .city-location {
+  max-width: 60px;
+  font-size: 16px;
+  color: #2d2d2d;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dm-header-box .location-header .i-arrow-location {
+  width: 9px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* ===== 城市下拉（修正后） ===== */
+.dm-header-box .location-header .city-header-wrap {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-left: 40px;
+  transform: translateX(-50%);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  /* display: none; */
+  pointer-events: auto;
+}
+.location-header:hover .city-header-wrap {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dm-header-box .location-header .city-header {
+  width: 626px;
+  margin-top: 8px;
+  background: #fff;
+  border: 1px solid #f4f4f4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+  padding: 20px;
+}
+
+/* 城市内容 */
+.dm-header-box .city-header .now-city,
+.dm-header-box .city-header .hot-city,
+.dm-header-box .city-header .other-city {
+  line-height: 24px;
+  align-items: flex-start;
+}
+
+.dm-header-box .city-header .hot-city {
+  margin-top: 16px;
+}
+
+.dm-header-box .location-header .city-header .list-other {
+  width: 525px;
+  display: inline-block;
+  line-height: 29px;
+  margin-top: -3px;
+  white-space: normal;
+}
+
+.dm-header-box .city-header .other-city {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+  align-items: flex-start;
+  display: flex;
+}
+
+.dm-header-box .city-header .title-city {
+  font-size: 14px;
+  color: #666;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.dm-header-box .city-header .name-city {
+  font-size: 14px;
+  color: #111;
+  margin-right: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dm-header-box .city-header .select-city {
+  color: #ff1268;
+}
+
+/* ======================
+   首页 / 分类
+====================== */
+.dm-header-box .recommend-header {
+  float: left;
+  height: 72px;
+  margin-left: 40px;
+  line-height: 72px;
+}
+
+.dm-header-box .recommend-header .type-recommend {
+  display: inline-block;
+  font-size: 16px;
+  color: #111;
+  margin-right: 18px;
+  cursor: pointer;
+}
+
+.dm-header-box .recommend-header .select {
+  color: #ff1268;
+}
+
+/* ======================
+   右侧区域
+====================== */
+.dm-header-box .right-header {
+  float: right;
+  height: 72px;
+  display: flex;
+  align-items: center;
+}
+
+.dm-header-box .right-header .box-header {
+  display: flex;
+  align-items: center;
+  margin-left: 24px;
+  position: relative;
+  cursor: pointer;
+}
+
+.dm-header-box .right-header .span-box-header {
+  font-size: 16px;
+  color: #111;
+  vertical-align: middle;
+}
+
+.dm-header-box .right-header .user-header:hover .list-wrap {
+  display: block;
+}
+
+/* ======================
+   登录下拉
+====================== */
+.dm-header-box .right-header .box-header .i-box-header {
+  width: 26px;
+  z-index: 20000;
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.dm-header-box .right-header .user-header .i-user {
+  border-radius: 13px;
+}
+
+.dm-header-box .right-header .user-header .list-wrap {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0;
+
+  background: #fff;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
+}
+
+.dm-header-box .right-header .user-header:hover .list-wrap {
+  opacity: 1;
+  visibility: visible;
+}
+
+.list-wrap:hover {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.dm-header-box .right-header .user-header .list-login {
+  padding: 6px 0;
+  min-width: 120px;
+}
+
+.dm-header-box .right-header .user-header .li-login {
+  display: block;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+}
+
+/* ======================
+   下载二维码
+====================== */
+.dm-header-box .right-header .download-header {
+  position: relative;
+}
+
+.dm-header-box .right-header .download-header .ewm-download {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  display: none;
+}
+.dm-header-box .right-header .download-header:hover .ewm-download {
+  display: block;
+}
+
+.dm-header-box .right-header .download-header .i-ewm {
+  width: 120px;
+}
+
+/* ======================
+   搜索框
+====================== */
+
+.search-header {
+  width: 401px;
+  height: 46px;
+  padding: 0px;
+  border: 0px;
+  margin-top: 12px;
+  margin-right: 20px;
+  position: relative;
+}
+
+.i-search {
+  width: 18px;
+  height: 17px;
+  padding: 0px;
+  border: 0px;
+  margin: 0px;
+  position: absolute;
+  top: 15px;
+  left: 22px;
+  z-index: 11;
+}
+
+.dm-header-box .search-header .input-search {
+  width: 253px;
+  height: 44px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  font-size: 16px;
+  padding: 0 10px 0 54px;
+  border-top-left-radius: 46px;
+  border-bottom-left-radius: 46px;
+  border: 1px solid #f8f8f8;
+  background-color: #f8f8f8;
+  border-right-color: #ff1268;
+  box-sizing: content-box;
+}
+
+.dm-header-box .search-header .btn-search {
+  width: 82px;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: #ff1268;
+  line-height: 46px;
+  font-size: 16px;
+  text-align: center;
+  color: #fff;
+  border-radius: 0 27px 27px 0;
+  z-index: 11;
+  letter-spacing: 4px;
+  cursor: pointer;
+}
+
+.dm-header-box .search-header .list-search-wrap {
+  width: 402px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: none;
+}
+
+.dm-header-box .search-header .list-search {
+  width: 374px;
+  max-height: 296px;
+  overflow: hidden;
+  position: relative;
+  left: 0;
+  margin-top: 55px;
+  z-index: 999;
+  padding: 0 14px;
+  background: #fff;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.dm-header-box .search-header .input-search:focus {
+  outline: none;
+  border-color: #ff1268;
+  background-color: #fff;
+}
