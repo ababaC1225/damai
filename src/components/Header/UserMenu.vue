@@ -7,7 +7,7 @@
     <div class="span-box-header">
       {{ isLogin ? userInfo.nickname : '登录' }}
 
-      <div v-if="isLogin && showMenu" class="list-wrap-custom" @mouseenter="handleMenuEnter">
+      <div v-if="isLogin && showMenu" class="list-wrap-custom" @mouseenter="handleMenuEnter" @click.stop>
         <router-link to="/user/info" class="li-login">个人信息</router-link>
         <router-link to="/user/setting" class="li-login">账号设置</router-link>
         <router-link to="/user/order" class="li-login">订单管理</router-link>

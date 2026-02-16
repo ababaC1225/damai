@@ -15,6 +15,7 @@ const handleLogin = async () => {
   if (res.data.code === 200) {
     userStore.isLogin = true
     userStore.userInfo = res.data.data
+    userStore.persist()
   } else {
     alert(res.data.message)
   }

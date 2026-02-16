@@ -79,15 +79,17 @@ const handlePasswordLogin = async () => {
                 password: password.value
             })
         })
-        const data = await res.json()
-        
+        const body = await res.json()
+        // 兼容 mock 直接返回 或 包在 data 里 { data: { code, data } }
+        const data = body.data && typeof body.data.code === 'number' ? body.data : body
         if (data.code === 200) {
             userStore.isLogin = true
-            userStore.userInfo = data.data
+            userStore.userInfo = data.data || { nickname: '', avatar: '' }
+            userStore.persist()
             alert("登录成功")
             router.push('/')
         } else {
-            alert(data.message)
+            alert(data.message || '账号或密码错误')
         }
     } catch (error) {
         alert("登录失败")

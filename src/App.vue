@@ -9,8 +9,7 @@ const route = useRoute();
 const isLoginPage = computed(() => {
   return route.path === '/login' ||
     route.path === '/register' ||
-    route.path === '/forget' ||
-    route.path.startsWith('/user');
+    route.path === '/forget';
 });
 </script>
 

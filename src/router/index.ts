@@ -31,15 +31,23 @@ const routes = [
   },
   {
     path: '/user/order',
-    component: () => import('@/views/user/OrderList.vue'),
+    component: () => import('../views/user/OrderList.vue'),
   },
   {
     path: '/user/info',
-    component: () => import('@/views/user/AccountInfo.vue'),
+    component: () => import('../views/user/AccountInfo.vue'),
   },
   {
     path: '/user/setting',
-    component: () => import('@/views/user/AccountSetting.vue'),
+    component: () => import('../views/user/AccountSetting.vue'),
+  },
+  {
+    path: '/user/address',
+    component: () => import('../views/user/Address.vue'),
+  },
+  {
+    path: '/user/contacts',
+    component: () => import('../views/user/Contacts.vue'),
   },
 ]
 
