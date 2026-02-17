@@ -60,13 +60,46 @@
 
 <script setup>
 import UserCenterLayout from './UserCenterLayout.vue'
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import request from '@/untils/request'
 
 const addresses = ref([])
 const showAdd = ref(false)
 const editingIndex = ref(-1)
 
-const form = reactive({ name: '', phone: '', region: '', detail: '' })
+const form = reactive({
+  name: '',
+  phone: '',
+  region: '',
+  detail: ''
+})
+
+/* ================= 获取地址列表 ================= */
+const fetchAddressList = async () => {
+  try {
+    const res = await request.get('/api/address')
+
+    if (res.code === 200) {
+      // 后端字段 → 前端字段转换
+      addresses.value = res.data.map(item => ({
+        id: item.id,
+        name: item.recipientName,
+        phone: item.recipientPhone,
+        region: `${item.province} ${item.city} ${item.district}`,
+        detail: item.detailAddress,
+        isDefault: item.isDefaultAddress === 'yes'
+      }))
+    }
+  } catch (err) {
+    console.log('获取地址失败', err)
+  }
+}
+
+onMounted(() => {
+  fetchAddressList()
+})
+
+/* ================= 以下是你原来的逻辑 ================= */
 
 function openAdd() {
   editingIndex.value = -1
@@ -89,16 +122,19 @@ function remove(idx) {
 }
 
 function save() {
-  const payload = { name: form.name, phone: form.phone, region: form.region, detail: form.detail }
+  const payload = {
+    name: form.name,
+    phone: form.phone,
+    region: form.region,
+    detail: form.detail
+  }
+
   if (editingIndex.value === -1) {
     addresses.value.unshift(payload)
   } else {
     addresses.value[editingIndex.value] = payload
   }
-  showAdd.value = false
-}
 
-function cancel() {
   showAdd.value = false
 }
 </script>

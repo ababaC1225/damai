@@ -4,14 +4,27 @@
           <h2 class="content-title">个人信息</h2>
           <p class="content-desc">完善您的个人信息，有助于提升账户安全与购票体验</p>
 
-          <div class="form-section">
-            <div class="form-item form-item-avatar">
+          <div class="form-item form-item-avatar">
               <label class="form-label">头像</label>
               <div class="avatar-wrap">
-                <img :src="form.avatar || defaultAvatar" alt="头像" class="avatar-img" />
-                <div class="avatar-tip">支持 jpg、png，大小不超过 2MB</div>
+                <label>
+                  <img
+                      :src="form.avatar || defaultAvatar"
+                      alt="头像"
+                      class="avatar-img"
+                    />
+                  <input
+                      type="file"
+                      style="display: none"
+                      @change="handleAvatarChange"
+                    />
+                </label>
+                <div class="avatar-tip">
+                  点击头像上传，支持 jpg、png，大小不超过 2MB
+                </div>
               </div>
-            </div>
+          </div>
+
 
             <div class="form-item">
               <label class="form-label"><span class="required">*</span> 昵称</label>
@@ -76,7 +89,7 @@
             <div class="form-actions">
               <button type="button" class="btn-save" @click="handleSave">保存</button>
             </div>
-          </div>
+         
     </div>
   </UserCenterLayout>
 </template>
@@ -85,9 +98,12 @@
 import UserCenterLayout from './UserCenterLayout.vue'
 import { reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
+import request from '@/untils/request'
 
 const userStore = useUserStore()
-const defaultAvatar = '//img.alicdn.com/tfs/TB14UKCGQyWBuNjy0FpXXassXXa-54-54.png'
+
+const defaultAvatar =
+  '//img.alicdn.com/tfs/TB14UKCGQyWBuNjy0FpXXassXXa-54-54.png'
 
 const form = reactive({
   nickname: '',
@@ -98,22 +114,117 @@ const form = reactive({
   idCard: ''
 })
 
-onMounted(() => {
-  form.nickname = userStore.userInfo.nickname || ''
-  form.avatar = userStore.userInfo.avatar || ''
+/* ================= 初始化加载 ================= */
+onMounted(async () => {
+  // 先用本地 store 的数据快速填充（避免闪烁）
+  const info = userStore.userInfo || {}
+  form.nickname = info.nickname || ''
+  form.avatar = info.avatar || ''
+  form.realName = info.realName || ''
+  form.idCard = info.idCard || ''
+  if (info.gender === 'FEMALE') form.gender = 'female'
+  else if (info.gender === 'MALE') form.gender = 'male'
+  else form.gender = ''
+  if (info.birthday) form.birthday = info.birthday.split('T')[0]
+
+  // 然后向后端请求最新信息并覆盖（若登录且接口可用）
+  try {
+    const res = await request.get('/api/user')
+    if (res && res.code === 200 && res.data) {
+      userStore.userInfo = res.data
+      userStore.persist()
+
+      const srv = res.data
+      form.nickname = srv.nickname || ''
+      form.avatar = srv.avatar || ''
+      form.realName = srv.realName || ''
+      form.idCard = srv.idCard || ''
+      if (srv.gender === 'FEMALE') form.gender = 'female'
+      else if (srv.gender === 'MALE') form.gender = 'male'
+      else form.gender = ''
+      if (srv.birthday) form.birthday = srv.birthday.split('T')[0]
+    }
+  } catch (err) {
+    // 不阻塞界面，控制台打印便于排查
+    console.error('加载用户信息失败', err)
+  }
 })
 
-const handleSave = () => {
+/* ================= 保存资料 ================= */
+const handleSave = async () => {
   if (!form.nickname.trim()) {
     alert('请输入昵称')
     return
   }
-  userStore.userInfo.nickname = form.nickname.trim()
-  if (form.avatar) userStore.userInfo.avatar = form.avatar
-  userStore.persist()
-  alert('保存成功')
+
+  try {
+    const res = await request.put('/api/user/update', {
+      nickname: form.nickname.trim(),
+      realName: form.realName || null,
+      gender: form.gender ? form.gender.toUpperCase() : null,
+      birthday: form.birthday
+        ? new Date(form.birthday).toISOString()
+        : null,
+      idCard: form.idCard || null
+    })
+
+    if (res.code === 200) {
+      alert('修改成功')
+
+      userStore.userInfo = res.data
+      userStore.persist()
+    } else {
+      alert(res.message || '修改失败')
+    }
+  } catch (error) {
+    console.error(error)
+    alert('修改失败：' + (error?.message || '未知错误'))
+  }
+}
+
+
+/* ================= 上传头像 ================= */
+const handleAvatarChange = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+
+  if (!['image/jpeg', 'image/png'].includes(file.type)) {
+    alert('仅支持 jpg / png 格式')
+    return
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert('图片不能超过 2MB')
+    return
+  }
+
+  const formData = new FormData()
+  formData.append('avatar', file)
+
+  try {
+    const res = await request.post(
+      '/api/user/avatar',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      }
+    )
+
+    if (res.code === 200) {
+      form.avatar = res.data.avatar
+      userStore.userInfo.avatar = res.data.avatar
+      userStore.persist()
+      alert('头像上传成功')
+    } else {
+      alert(res.message || '上传失败')
+    }
+  } catch (err) {
+    console.error(err)
+    alert('上传失败')
+  }
 }
 </script>
+
 
 <style scoped>
 .content-card {

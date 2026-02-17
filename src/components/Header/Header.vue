@@ -393,7 +393,7 @@ import UserMenu from './UserMenu.vue'
             <!-- 首页和分类 -->
             <div class="recommend-header">
                 <router-link to="/home" class="type-recommend select">首页</router-link>
-                <a href="#" class="type-recommend">分类</a>
+                <router-link to="/search" class="type-recommend">分类</router-link>
             </div>
 
             <!-- 登录和下载 -->

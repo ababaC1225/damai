@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 
 const STORAGE_KEY = 'damai_user'
 
-function getStoredUser(): { isLogin: boolean; userInfo: { nickname: string; avatar: string } } | null {
+function getStoredUser(): { isLogin: boolean; token: string;userInfo: { nickname: string; avatar: string } } | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
@@ -19,6 +19,7 @@ export const useUserStore = defineStore('user', () => {
   const stored = getStoredUser()
   const defaultUserInfo = { nickname: '', avatar: '' }
   const isLogin = ref(stored?.isLogin ?? false)
+  const token = ref(stored?.token ?? '')
   const userInfo = ref(
     stored?.userInfo && typeof stored.userInfo === 'object'
       ? { nickname: stored.userInfo.nickname ?? '', avatar: stored.userInfo.avatar ?? '' }
@@ -38,6 +39,7 @@ export const useUserStore = defineStore('user', () => {
 
   const logout = () => {
     isLogin.value = false
+    token.value = ''
     userInfo.value = { nickname: '', avatar: '' }
     localStorage.removeItem(STORAGE_KEY)
   }

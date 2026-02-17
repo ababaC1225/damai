@@ -1,65 +1,65 @@
 <template>
   <nav class="nav-menu">
-    <a href="#" class="menu-list">
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/yanchanghui.png" alt="演唱会">
       </div>
       <span class="menu-list-name">演唱会</span>
-    </a>
-    <a href="#" class="menu-list">
+    </router-link>
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/huajv.png" alt="话剧歌剧">
       </div>
       <span class="menu-list-name">话剧歌剧</span>
-    </a>
-    <a href="#" class="menu-list">
+    </router-link>
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/tiyu.png" alt="体育">
       </div>
       <span class="menu-list-name">体育</span>
-    </a>
-    <a href="#" class="menu-list">
+    </router-link>
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/ertongqinzi.png" alt="儿童亲子">
       </div>
       <span class="menu-list-name">儿童亲子</span>
-    </a>
-    <a href="#" class="menu-list">
+    </router-link>
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/zhanlan.png" alt="展览休闲">
       </div>
       <span class="menu-list-name">展览休闲</span>
-    </a>
-    <a href="#" class="menu-list">
+    </router-link>
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/yinyuehui.png" alt="音乐会">
       </div>
       <span class="menu-list-name">音乐会</span>
-    </a>
-    <a href="#" class="menu-list">
+    </router-link>
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/qvyuan.png" alt="曲苑杂坛">
       </div>
       <span class="menu-list-name">曲苑杂坛</span>
-    </a>
-    <a href="#" class="menu-list">
+    </router-link>
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/wudao.png" alt="舞蹈芭蕾">
       </div>
       <span class="menu-list-name">舞蹈芭蕾</span>
-    </a>
-    <a href="#" class="menu-list">
+    </router-link>
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/erciyuan.png" alt="二次元">
       </div>
       <span class="menu-list-name">二次元</span>
-    </a>
-    <a href="#" class="menu-list">
+    </router-link>
+    <router-link to="/search" class="menu-list">
       <div class="menu-list-icon">
         <img src="../../../assets/images/lvyou.png" alt="旅游展览">
       </div>
       <span class="menu-list-name">旅游展览</span>
-    </a>
+    </router-link>
 
   </nav>
 </template>

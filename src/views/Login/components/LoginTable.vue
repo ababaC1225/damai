@@ -35,6 +35,7 @@
                     <input type="text" placeholder="请输入邮箱" v-model="email">    
                     <input type="text" placeholder="请输入验证码" v-model="code">
                     <button @click="sendCode">获取验证码</button>
+                    <button @click="handleEmailLogin">登录</button>
                 </div>
 
             <!-- 二维码登录 -->
@@ -52,6 +53,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import request from '@/untils/request'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -69,30 +71,50 @@ const handlePasswordLogin = async () => {
         return
     }
     try {
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: username.value,
-                password: password.value
-            })
+        const res = await request.post('/api/auth/login', {
+            loginType: 'password',
+            username: username.value,
+            password: password.value
         })
-        const body = await res.json()
-        // 兼容 mock 直接返回 或 包在 data 里 { data: { code, data } }
-        const data = body.data && typeof body.data.code === 'number' ? body.data : body
-        if (data.code === 200) {
+        
+        if (res.code === 200) {
             userStore.isLogin = true
-            userStore.userInfo = data.data || { nickname: '', avatar: '' }
+            userStore.userInfo = res.data || { nickname: '', avatar: '' }
             userStore.persist()
             alert("登录成功")
             router.push('/')
         } else {
-            alert(data.message || '账号或密码错误')
+            alert(res.message || '账号或密码错误')
         }
     } catch (error) {
-        alert("登录失败")
+        alert("登录失败: " + (error?.message || '未知错误'))
+    }
+}
+
+const handleEmailLogin = async () => {
+    if (!email.value || !code.value) {
+        alert('请输入邮箱和验证码')
+        return
+    }
+    try {
+        const res = await request.post('/api/auth/login', {
+            loginType: 'email',
+            email: email.value,
+            code: code.value
+        })
+        
+        if (res.code === 200) {
+            userStore.isLogin = true
+            userStore.token = res.data   // 存 token
+            userStore.persist()
+            alert("登录成功")
+            router.push('/')
+        }
+        else {
+            alert(res.message || '登录失败')
+        }
+    } catch (error) {
+        alert("登录失败: " + (error?.message || '未知错误'))
     }
 }
 
@@ -102,24 +124,16 @@ const sendCode = async () => {
         return
     }
     try {
-        const res = await fetch('/api/auth/sendCode', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email.value
-            })
-        })
-        const data = await res.json()
-        
-        if (data.code === 200) {
-            alert("验证码发送成功")
+        const res = await request.post('/api/auth/sendCode', { email: email.value })
+
+        if (res && res.code === 200) {
+            alert('验证码发送成功')
         } else {
-            alert(data.message)
+            alert(res?.message || '验证码发送失败')
         }
     } catch (error) {
-        alert("验证码发送失败")
+        console.error('sendCode error', error)
+        alert('验证码发送失败: ' + (error?.message || '未知错误'))
     }
 }
 </script>

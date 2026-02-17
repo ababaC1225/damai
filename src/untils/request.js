@@ -1,7 +1,17 @@
 import axios from "axios"//引入axios库
+import { useUserStore } from '@/stores/user'
+
+request.interceptors.request.use(config => {
+  const userStore = useUserStore()
+  if (userStore.token) {
+    config.headers.Authorization = userStore.token
+  }
+  return config
+})
+
 
 const service = axios.create({
-  baseURL: "https://eager-states-say.loca.lt", // 暂用内网穿透地址
+  baseURL: "http://193.112.68.157:8080", //请求地址
   timeout: 5000  //超过五秒没响应就报错
 })
 
