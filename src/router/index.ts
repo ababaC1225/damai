@@ -3,6 +3,7 @@ import Homepage from '@/views/HomePage/index.vue'
 import Login from '@/views/Login/Login.vue'
 import Register from '@/views/Login/Register.vue'
 import Forget from '@/views/Login/Forget.vue'
+import SettingTable from '@/views/user/SettingTable.vue'
 
 const routes = [
   {
@@ -53,6 +54,10 @@ const routes = [
   {
     path: '/user/contacts',
     component: () => import('../views/user/Contacts.vue'),
+  },
+  {
+    path: '/user/settingTable',
+    component: SettingTable,
   },
 ]
 

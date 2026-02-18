@@ -119,7 +119,7 @@ onMounted(async () => {
   // 先用本地 store 的数据快速填充（避免闪烁）
   const info = userStore.userInfo || {}
   form.nickname = info.nickname || ''
-  form.avatar = info.avatar || ''
+  form.avatar = formatAvatarUrl(info.avatar) || ''
   form.realName = info.realName || ''
   form.idCard = info.idCard || ''
   if (info.gender === 'FEMALE') form.gender = 'female'
@@ -131,10 +131,13 @@ onMounted(async () => {
   try {
     const res = await request.get('/api/user')
     if (res && res.code === 200 && res.data) {
-      userStore.userInfo = res.data
+      const srv = res.data
+      // 对头像 URL 进行格式化（相对路径转完整 URL）
+      srv.avatar = formatAvatarUrl(srv.avatar)
+      
+      userStore.userInfo = srv
       userStore.persist()
 
-      const srv = res.data
       form.nickname = srv.nickname || ''
       form.avatar = srv.avatar || ''
       form.realName = srv.realName || ''
@@ -150,6 +153,17 @@ onMounted(async () => {
   }
 })
 
+// 辅助函数：将相对路径转换为完整 URL
+const formatAvatarUrl = (url) => {
+  if (!url) return ''
+  if (typeof url !== 'string') return ''
+  // 如果已经是完整 URL，直接返回
+  if (url.startsWith('http')) return url
+  // 如果是相对路径，拼接成完整 URL
+  const baseURL = 'http://193.112.68.157:8080'
+  return baseURL + url
+}
+
 /* ================= 保存资料 ================= */
 const handleSave = async () => {
   if (!form.nickname.trim()) {
@@ -158,7 +172,7 @@ const handleSave = async () => {
   }
 
   try {
-    const res = await request.put('/api/user/update', {
+    const payload = {
       nickname: form.nickname.trim(),
       realName: form.realName || null,
       gender: form.gender ? form.gender.toUpperCase() : null,
@@ -166,18 +180,41 @@ const handleSave = async () => {
         ? new Date(form.birthday).toISOString()
         : null,
       idCard: form.idCard || null
-    })
+    }
+    console.log('📤 发送保存请求: /api/user/update', payload)
+    const res = await request.put('/api/user/update', payload)
 
+    console.log('📥 保存响应:', res)
     if (res.code === 200) {
       alert('修改成功')
 
-      userStore.userInfo = res.data
+      // 无论后端返回什么，都用前端的 form 数据更新 store（避免数据丢失）
+      userStore.userInfo = {
+        ...userStore.userInfo,
+        ...(res.data || payload),
+        nickname: form.nickname,
+        realName: form.realName,
+        gender: form.gender ? form.gender.toUpperCase() : null,
+        birthday: form.birthday ? new Date(form.birthday).toISOString() : null,
+        idCard: form.idCard
+      }
       userStore.persist()
+      console.log('✅ 保存成功，userInfo 已更新:', userStore.userInfo)
+    } else if (res.code === 401 || res.code === 403) {
+      alert('会话已过期，请重新登录')
+      userStore.logout()
+      location.href = '/login'
     } else {
       alert(res.message || '修改失败')
     }
   } catch (error) {
-    console.error(error)
+    console.error('❌ 保存失败:', error)
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      alert('会话已过期，请重新登录')
+      userStore.logout()
+      location.href = '/login'
+      return
+    }
     alert('修改失败：' + (error?.message || '未知错误'))
   }
 }
@@ -202,6 +239,7 @@ const handleAvatarChange = async (e) => {
   formData.append('avatar', file)
 
   try {
+    console.log('📤 上传头像请求: /api/user/avatar, 文件:', file.name)
     const res = await request.post(
       '/api/user/avatar',
       formData,
@@ -210,17 +248,40 @@ const handleAvatarChange = async (e) => {
       }
     )
 
+    console.log('📥 头像上传响应:', res)
     if (res.code === 200) {
-      form.avatar = res.data.avatar
-      userStore.userInfo.avatar = res.data.avatar
-      userStore.persist()
-      alert('头像上传成功')
+      // 兼容返回的头像 URL（可能在 res.data.avatar 或 res.data）
+      let avatarUrl = res.data?.avatar || res.data
+      
+      // 调用辅助函数处理相对路径
+      avatarUrl = formatAvatarUrl(avatarUrl)
+      
+      if (avatarUrl) {
+        form.avatar = avatarUrl
+        userStore.userInfo.avatar = avatarUrl
+        userStore.persist()
+        console.log('✅ 头像上传成功，完整 URL:', avatarUrl)
+        alert('头像上传成功')
+      } else {
+        console.warn('⚠️ 响应中没有头像 URL')
+        alert('头像上传成功，但响应格式异常')
+      }
+    } else if (res.code === 401 || res.code === 403) {
+      alert('会话已过期，请重新登录')
+      userStore.logout()
+      location.href = '/login'
     } else {
       alert(res.message || '上传失败')
     }
   } catch (err) {
-    console.error(err)
-    alert('上传失败')
+    console.error('❌ 头像上传失败:', err)
+    if (err.response?.status === 401 || err.response?.status === 403) {
+      alert('会话已过期，请重新登录')
+      userStore.logout()
+      location.href = '/login'
+      return
+    }
+    alert('上传失败: ' + (err?.message || '未知错误'))
   }
 }
 </script>

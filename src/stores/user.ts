@@ -1,31 +1,35 @@
+// src/stores/user.ts
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
 const STORAGE_KEY = 'damai_user'
 
-function getStoredUser(): { isLogin: boolean; token: string;userInfo: { nickname: string; avatar: string } } | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const data = JSON.parse(raw)
-    if (data && typeof data.isLogin === 'boolean' && data.userInfo) return data
-    return null
-  } catch {
-    return null
-  }
+export interface UserInfo {
+  id?: number
+  nickname: string
+  avatar: string
+  username?: string
 }
 
 export const useUserStore = defineStore('user', () => {
-  const stored = getStoredUser()
-  const defaultUserInfo = { nickname: '', avatar: '' }
-  const isLogin = ref(stored?.isLogin ?? false)
-  const token = ref(stored?.token ?? '')
-  const userInfo = ref(
-    stored?.userInfo && typeof stored.userInfo === 'object'
-      ? { nickname: stored.userInfo.nickname ?? '', avatar: stored.userInfo.avatar ?? '' }
-      : defaultUserInfo
-  )
+  const isLogin = ref(false)
+  const userInfo = ref<UserInfo>({ nickname: '', avatar: '', username: '' })
 
+  // 从 localStorage 恢复状态
+  const stored = localStorage.getItem(STORAGE_KEY)
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored)
+      if (parsed.isLogin && parsed.userInfo) {
+        isLogin.value = parsed.isLogin
+        userInfo.value = parsed.userInfo
+      }
+    } catch (e) {
+      console.warn('恢复用户状态失败', e)
+    }
+  }
+
+  // 同步到 localStorage
   const persist = () => {
     if (isLogin.value) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ isLogin: true, userInfo: userInfo.value }))
@@ -34,20 +38,14 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  // 状态变化时同步到 localStorage（含初始化时恢复后的同步）
   watch([isLogin, userInfo], persist, { deep: true, immediate: true })
 
+  // 退出登录
   const logout = () => {
     isLogin.value = false
-    token.value = ''
-    userInfo.value = { nickname: '', avatar: '' }
-    localStorage.removeItem(STORAGE_KEY)
+    userInfo.value = { nickname: '', avatar: '', username: '' }
+    persist()
   }
 
-  return {
-    isLogin,
-    userInfo,
-    persist,
-    logout
-  }
+  return { isLogin, userInfo, persist, logout }
 })

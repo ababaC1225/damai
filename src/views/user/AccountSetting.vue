@@ -10,7 +10,9 @@
         <div class="security-summary">
           <div class="level">安全等级：<span :class="'badge ' + securityClass">{{ securityLabel }}</span></div>
           <div class="progress">
-            <div class="bar"><div class="fill" :style="{ width: securityPercent + '%' }"></div></div>
+            <div class="bar">
+              <div class="fill" :style="{ width: securityPercent + '%' }"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -23,7 +25,10 @@
           </div>
           <div class="setting-right">
             <div class="value">********</div>
-            <button class="btn btn-outline" @click="changePassword">修改</button>
+            <router-link>
+              <button class="btn btn-outline" @click="changePassword">修改</button>
+            </router-link>
+
           </div>
         </div>
 
@@ -66,11 +71,16 @@
         <button class="link" @click="notificationSettings">通知设置</button>
       </div>
     </div>
+
+    <!-- ✅ 新增：修改密码弹窗 -->
+    <SettingTable v-model:visible="showPasswordDialog" @success="handlePasswordSuccess" />
   </UserCenterLayout>
 </template>
 
 <script setup>
 import UserCenterLayout from './UserCenterLayout.vue'
+import SettingTable from './SettingTable.vue'   // ✅ 新增
+
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 
@@ -80,6 +90,9 @@ const emailBound = ref(false)
 const phoneNumber = ref('')
 const emailAddress = ref('')
 const verified = ref(false)
+
+/* ✅ 新增：控制弹窗显示 */
+const showPasswordDialog = ref(false)
 
 const securityPercent = computed(() => {
   let score = 20
@@ -99,7 +112,22 @@ const securityClass = computed(() => {
   return 'low'
 })
 
-function changePassword() { alert('跳转到修改密码或打开模态（示例）') }
+/* ✅ 修改：打开弹窗 */
+function changePassword() {
+  showPasswordDialog.value = true
+}
+
+/* ✅ 新增：接收子组件返回的新密码 */
+function handlePasswordSuccess(newPassword) {
+  console.log('新密码：', newPassword)
+
+  // 这里对接后端接口
+  // await api.updatePassword({ password: newPassword })
+
+  alert('密码修改成功')
+  showPasswordDialog.value = false
+}
+
 function toggleBindPhone() { phoneBound.value = !phoneBound.value; if (phoneBound.value) phoneNumber.value = '138****1234' }
 function toggleBindEmail() { emailBound.value = !emailBound.value; if (emailBound.value) emailAddress.value = 'you@example.com' }
 function verifyIdentity() { verified.value = true; alert('身份认证示例：已设置为已认证') }
@@ -108,25 +136,161 @@ function notificationSettings() { alert('通知设置（示例）') }
 </script>
 
 <style scoped>
-.content-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 28px; box-shadow: 0 6px 18px rgba(12,12,12,0.04); }
-.header { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:22px }
-.security-summary { text-align:right; min-width:220px }
-.level { font-size:14px; color:#666; margin-bottom:8px; display:flex; align-items:center; gap:8px; justify-content:flex-end }
-.badge { padding:6px 10px; border-radius:20px; color:#fff; font-weight:600; font-size:13px }
-.badge.high { background: linear-gradient(90deg,#4ade80,#16a34a); }
-.badge.medium { background: linear-gradient(90deg,#f59e0b,#fb923c); }
-.badge.low { background: linear-gradient(90deg,#ef4444,#f97316); }
-.progress .bar { width:200px; height:8px; background:#f3f4f6; border-radius:999px; overflow:hidden }
-.progress .fill { height:100%; background: linear-gradient(90deg,#ff1268,#ff4d8a); width:0; transition:width 0.4s }
-.setting-grid { display:grid; grid-template-columns: repeat(2,1fr); gap:14px }
-@media (max-width: 760px) { .setting-grid { grid-template-columns: 1fr } .security-summary { text-align:left } .header { flex-direction:column; align-items:flex-start } }
-.setting-card { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:18px; border-radius:8px; border:1px solid #f1f5f9; box-shadow:0 2px 6px rgba(2,6,23,0.03) }
-.setting-left .label { font-weight:600; color:#111 }
-.setting-left .desc { color:#777; font-size:13px; margin-top:6px }
-.setting-right { display:flex; align-items:center; gap:12px; flex-shrink:0 }
-.value { color:#666; min-width:120px; text-align:right; font-weight:500 }
-.btn { padding:8px 14px; border-radius:6px; border:none; background: linear-gradient(135deg,#ff1268,#ff4d8a); color:#fff; cursor:pointer; font-weight:600 }
-.btn-outline { padding:7px 12px; border-radius:6px; border:1px solid #eee; background:#fff; color:#ff1268; cursor:pointer; font-weight:600 }
-.more-actions { margin-top:18px; display:flex; gap:12px }
-.link { background:none; border:none; color:#666; cursor:pointer; text-decoration:underline; font-size:14px }
+.content-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: 0 6px 18px rgba(12, 12, 12, 0.04);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 22px
+}
+
+.security-summary {
+  text-align: right;
+  min-width: 220px
+}
+
+.level {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 20px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px
+}
+
+.badge.high {
+  background: linear-gradient(90deg, #4ade80, #16a34a);
+}
+
+.badge.medium {
+  background: linear-gradient(90deg, #f59e0b, #fb923c);
+}
+
+.badge.low {
+  background: linear-gradient(90deg, #ef4444, #f97316);
+}
+
+.progress .bar {
+  width: 200px;
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  overflow: hidden
+}
+
+.progress .fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff1268, #ff4d8a);
+  width: 0;
+  transition: width 0.4s
+}
+
+.setting-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px
+}
+
+@media (max-width: 760px) {
+  .setting-grid {
+    grid-template-columns: 1fr
+  }
+
+  .security-summary {
+    text-align: left
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start
+  }
+}
+
+.setting-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 6px rgba(2, 6, 23, 0.03)
+}
+
+.setting-left .label {
+  font-weight: 600;
+  color: #111
+}
+
+.setting-left .desc {
+  color: #777;
+  font-size: 13px;
+  margin-top: 6px
+}
+
+.setting-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0
+}
+
+.value {
+  color: #666;
+  min-width: 120px;
+  text-align: right;
+  font-weight: 500
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: linear-gradient(135deg, #ff1268, #ff4d8a);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600
+}
+
+.btn-outline {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  background: #fff;
+  color: #ff1268;
+  cursor: pointer;
+  font-weight: 600
+}
+
+.more-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px
+}
+
+.link {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px
+}
 </style>
