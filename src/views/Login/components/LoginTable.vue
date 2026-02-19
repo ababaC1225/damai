@@ -133,7 +133,7 @@ const handleEmailLogin = async () => {
 const sendCode = async () => {
   if (!email.value) { alert('请输入邮箱'); return }
   try {
-    const res = await request.post('/api/auth/sendCode',{email:email.value})
+    const res = await request.get(`/api/auth/login/${email.value}`)
     if(res.code===200) alert('验证码发送成功')
     else alert(res.message||'发送失败')
   } catch(err) {

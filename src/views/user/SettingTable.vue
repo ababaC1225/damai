@@ -6,24 +6,47 @@
         <span class="close" @click="close">×</span>
       </div>
 
+      <!-- 邮箱 -->
       <div class="form-item">
-        <label>原密码</label>
+        <label>邮箱</label>
         <input
-          type="password"
-          v-model="form.oldPassword"
-          placeholder="请输入原密码"
+          type="text"
+          v-model="form.email"
+          placeholder="请输入邮箱"
         />
       </div>
 
+      <!-- 验证码 -->
+      <div class="form-item">
+        <label>验证码</label>
+        <div class="code-box">
+          <input
+            type="text"
+            v-model="form.code"
+            placeholder="请输入验证码"
+          />
+          <button
+            type="button"
+            class="code-btn"
+            :disabled="countdown > 0"
+            @click="sendCode"
+          >
+            {{ countdown > 0 ? countdown + "s" : "获取验证码" }}
+          </button>
+        </div>
+      </div>
+
+      <!-- 新密码 -->
       <div class="form-item">
         <label>新密码</label>
         <input
           type="password"
-          v-model="form.newPassword"
+          v-model="form.password"
           placeholder="请输入新密码"
         />
       </div>
 
+      <!-- 确认密码 -->
       <div class="form-item">
         <label>再次输入新密码</label>
         <input
@@ -48,7 +71,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch, onMounted, onBeforeUnmount } from "vue"
+import { reactive, ref, onMounted, onBeforeUnmount } from "vue"
 import request from "@/untils/request"
 
 const props = defineProps({
@@ -58,10 +81,13 @@ const props = defineProps({
 const emit = defineEmits(["update:visible", "success"])
 
 const loading = ref(false)
+const countdown = ref(0)
+let timer = null
 
 const form = reactive({
-  oldPassword: "",
-  newPassword: "",
+  email: "",
+  code: "",
+  password: "",
   confirmPassword: ""
 })
 
@@ -71,24 +97,68 @@ const close = () => {
   reset()
 }
 
-/* 清空表单 */
+/* 重置表单 */
 const reset = () => {
-  form.oldPassword = ""
-  form.newPassword = ""
+  form.email = ""
+  form.code = ""
+  form.password = ""
   form.confirmPassword = ""
 }
 
-/* 提交逻辑 */
+/* 强密码校验 */
+const validatePassword = (password) => {
+  const regex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/
+  return regex.test(password)
+}
+
+/* 发送验证码 */
+const sendCode = async () => {
+  if (!form.email) {
+    alert("请输入邮箱")
+    return
+  }
+
+  if (countdown.value > 0) return
+
+  try {
+    const res = await request.get(
+      `/api/auth/login/${form.email}`
+    )
+
+    if (res.code === 200) {
+      alert("验证码已发送")
+      countdown.value = 60
+
+      timer = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) {
+          clearInterval(timer)
+          timer = null
+        }
+      }, 1000)
+    } else {
+      alert(res.message || "发送失败")
+    }
+  } catch (err) {
+    alert("发送失败")
+  }
+}
+
+/* 提交修改密码 */
 const submit = async () => {
-  if (!form.oldPassword || !form.newPassword || !form.confirmPassword) {
+  if (!form.email || !form.code || !form.password || !form.confirmPassword) {
     alert("请填写完整信息")
     return
   }
 
-  if (form.newPassword !== form.confirmPassword) {
-    alert("两次输入密码不一样，请重新输入")
-    form.newPassword = ""
-    form.confirmPassword = ""
+  if (form.password !== form.confirmPassword) {
+    alert("两次密码不一致")
+    return
+  }
+
+  if (!validatePassword(form.password)) {
+    alert("密码至少8位，包含大小写字母、数字和特殊字符")
     return
   }
 
@@ -96,20 +166,19 @@ const submit = async () => {
   loading.value = true
 
   try {
-    const res = await request.put("/api/user/password", {
-      oldPassword: form.oldPassword,
-      newPassword: form.newPassword
-    })
+    const res = await request.put(
+      `/api/user/password?code=${form.code}&password=${form.confirmPassword}`
+    )
 
     if (res.code === 200) {
-      alert("密码修改成功")
+      alert("修改密码成功，请重新登录")
       emit("success")
       close()
     } else {
       alert(res.message || "修改失败")
     }
   } catch (err) {
-    alert(err.response?.data?.message || "服务器错误")
+    alert("服务器错误")
   } finally {
     loading.value = false
   }
@@ -120,14 +189,17 @@ const handleKey = (e) => {
   if (e.key === "Escape") close()
 }
 
-onMounted(() => window.addEventListener("keydown", handleKey))
-onBeforeUnmount(() =>
-  window.removeEventListener("keydown", handleKey)
+onMounted(() =>
+  window.addEventListener("keydown", handleKey)
 )
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", handleKey)
+  if (timer) clearInterval(timer)
+})
 </script>
 
 <style scoped>
-/* 背景遮罩 */
 .overlay {
   position: fixed;
   inset: 0;
@@ -138,7 +210,6 @@ onBeforeUnmount(() =>
   z-index: 999;
 }
 
-/* 小圆角框 */
 .modal {
   width: 360px;
   background: #fff;
@@ -148,7 +219,6 @@ onBeforeUnmount(() =>
   animation: pop 0.2s ease;
 }
 
-/* 标题 */
 .header {
   display: flex;
   justify-content: space-between;
@@ -158,19 +228,18 @@ onBeforeUnmount(() =>
   margin-bottom: 18px;
 }
 
-/* 关闭按钮 */
 .close {
   cursor: pointer;
   font-size: 20px;
   color: #999;
   transition: 0.2s;
 }
+
 .close:hover {
   color: #ff1268;
   transform: rotate(90deg);
 }
 
-/* 输入框 */
 .form-item {
   margin-bottom: 14px;
 }
@@ -197,7 +266,31 @@ onBeforeUnmount(() =>
   box-shadow: 0 0 0 2px rgba(255, 18, 104, 0.15);
 }
 
-/* 按钮区域 */
+.code-box {
+  display: flex;
+  gap: 8px;
+}
+
+.code-box input {
+  flex: 1;
+}
+
+.code-btn {
+  white-space: nowrap;
+  padding: 0 12px;
+  border: none;
+  background: #ff1268;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.code-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -235,7 +328,6 @@ onBeforeUnmount(() =>
   font-size: 14px;
 }
 
-/* 动画 */
 @keyframes pop {
   from {
     transform: scale(0.9);
