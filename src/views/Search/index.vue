@@ -14,7 +14,8 @@
                     <span class="filter-label">城市：</span>
                     <span class="filter-value" @click="toggleCityDropdown">
                         {{ selectedCity }}
-                        <img class="arrow-icon" src="https://img.alicdn.com/tfs/TB1vnUBxStYBeNjSspaXXaOOFXa-20-12.png" alt="箭头">
+                        <img class="arrow-icon" src="https://img.alicdn.com/tfs/TB1vnUBxStYBeNjSspaXXaOOFXa-20-12.png"
+                            alt="箭头">
                     </span>
                     <div class="dropdown-menu" v-if="showCityDropdown">
                         <span class="dropdown-item" @click="selectCity('全国')">全国</span>
@@ -33,7 +34,8 @@
                     <span class="filter-label">分类：</span>
                     <span class="filter-value" @click="toggleCategoryDropdown">
                         {{ selectedCategory }}
-                        <img class="arrow-icon" src="https://img.alicdn.com/tfs/TB1vnUBxStYBeNjSspaXXaOOFXa-20-12.png" alt="箭头">
+                        <img class="arrow-icon" src="https://img.alicdn.com/tfs/TB1vnUBxStYBeNjSspaXXaOOFXa-20-12.png"
+                            alt="箭头">
                     </span>
                     <div class="dropdown-menu" v-if="showCategoryDropdown">
                         <span class="dropdown-item" @click="selectCategory('全部')">全部</span>
@@ -52,7 +54,8 @@
                     <span class="filter-label">时间：</span>
                     <span class="filter-value" @click="toggleTimeDropdown">
                         {{ selectedTime }}
-                        <img class="arrow-icon" src="https://img.alicdn.com/tfs/TB1vnUBxStYBeNjSspaXXaOOFXa-20-12.png" alt="箭头">
+                        <img class="arrow-icon" src="https://img.alicdn.com/tfs/TB1vnUBxStYBeNjSspaXXaOOFXa-20-12.png"
+                            alt="箭头">
                     </span>
                     <div class="dropdown-menu" v-if="showTimeDropdown">
                         <span class="dropdown-item" @click="selectTime('全部')">全部</span>
@@ -67,12 +70,8 @@
             <!-- 排序选项 -->
             <div class="sort-bar">
                 <span class="sort-label">排序：</span>
-                <span 
-                    v-for="option in sortOptions"
-                    :key="option"
-                    :class="['sort-item', { active: selectedSort === option }]"
-                    @click="selectedSort = option"
-                >
+                <span v-for="option in sortOptions" :key="option"
+                    :class="['sort-item', { active: selectedSort === option }]" @click="selectedSort = option">
                     {{ option }}
                 </span>
             </div>
@@ -86,11 +85,7 @@
         <!-- 演出列表 -->
         <div class="events-container">
             <div v-if="events.length > 0" class="events-grid">
-                <div 
-                    v-for="event in filteredEvents"
-                    :key="event.id"
-                    class="event-card"
-                >
+                <div v-for="event in filteredEvents" :key="event.id" class="event-card">
                     <div class="event-image">
                         <img :src="event.image" :alt="event.title">
                         <div class="event-status" v-if="event.soldOut" style="background: rgba(0,0,0,0.5);">
@@ -103,11 +98,13 @@
                     <div class="event-info">
                         <h3 class="event-title">{{ event.title }}</h3>
                         <p class="event-date">
-                            <img src="https://img.alicdn.com/tfs/TB1XHDuxNGYBuNjy0FnXXX5lpXa-28-32.png" alt="日期" class="icon-small">
+                            <img src="https://img.alicdn.com/tfs/TB1XHDuxNGYBuNjy0FnXXX5lpXa-28-32.png" alt="日期"
+                                class="icon-small">
                             {{ event.date }}
                         </p>
                         <p class="event-location">
-                            <img src="https://img.alicdn.com/tfs/TB1XHDuxNGYBuNjy0FnXXX5lpXa-28-32.png" alt="地点" class="icon-small">
+                            <img src="https://img.alicdn.com/tfs/TB1XHDuxNGYBuNjy0FnXXX5lpXa-28-32.png" alt="地点"
+                                class="icon-small">
                             {{ event.location }}
                         </p>
                         <div class="event-price">
@@ -135,10 +132,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import request from '@/untils/request'
+import SearchBar from '@/components/SearchBar/SearchBar.vue'
 
 const currentPage = ref(1)
 const itemsPerPage = 12
+
+// 来自路由的关键词（Header 搜索框会通过路由 query 传入）
+const route = useRoute()
+const searchQuery = ref('')
 
 const selectedCity = ref('全国')
 const selectedCategory = ref('全部')
@@ -176,177 +180,118 @@ const handleDocumentClick = (e) => {
 onMounted(() => document.addEventListener('click', handleDocumentClick, true))
 onBeforeUnmount(() => document.removeEventListener('click', handleDocumentClick, true))
 
+// 初始加载数据
+onMounted(() => {
+    const q = route && route.query && route.query.keyword
+    if (q) searchQuery.value = String(q)
+    fetchPerformances()
+})
+
+// 当筛选或分页变动时重新拉取
+watch([selectedCity, selectedCategory, currentPage], () => {
+    // 将 currentPage 保持在 1 时，fetchPerformances 会使用 currentPage
+    fetchPerformances()
+})
+
 const sortOptions = ['推荐排序', '相关度排序', '最近开场', '最新上架']
 
-// Mock 演出数据
-const events = ref([
-    {
-        id: 1,
-        title: '2024年《麻辣烫》春季巡演-北京站',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+1',
-        date: '2024-03-15 19:30',
-        location: '北京·朝阳剧场',
-        price: '180',
-        soldOut: false,
-        discount: null,
-        category: '演唱会',
-        city: '北京'
-    },
-    {
-        id: 2,
-        title: '【一起唱•广州】2024年新年演唱会',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+2',
-        date: '2024-03-16 20:00',
-        location: '广州·体育中心',
-        price: '280',
-        soldOut: true,
-        discount: null,
-        category: '演唱会',
-        city: '广州'
-    },
-    {
-        id: 3,
-        title: '话剧《人间草木》',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+3',
-        date: '2024-03-17 19:00',
-        location: '上海·大剧院',
-        price: '150',
-        soldOut: false,
-        discount: '8折',
-        category: '话剧歌剧',
-        city: '上海'
-    },
-    {
-        id: 4,
-        title: '2024武汉音乐节',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+4',
-        date: '2024-03-18 18:00',
-        location: '武汉·东湖生态文化公园',
-        price: '99',
-        soldOut: false,
-        discount: null,
-        category: '音乐节',
-        city: '武汉'
-    },
-    {
-        id: 5,
-        title: '2024中国足协杯-八强赛',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+5',
-        date: '2024-03-19 19:35',
-        location: '上海·浦东足球场',
-        price: '128',
-        soldOut: false,
-        discount: null,
-        category: '体育赛事',
-        city: '上海'
-    },
-    {
-        id: 6,
-        title: '展览：《紫禁城里过大年》',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+6',
-        date: '2024-03-20 09:00',
-        location: '北京·故宫博物院',
-        price: '60',
-        soldOut: false,
-        discount: null,
-        category: '展览展会',
-        city: '北京'
-    },
-    {
-        id: 7,
-        title: '芭蕾《天鹅湖》',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+7',
-        date: '2024-03-21 19:30',
-        location: '北京·国家大剧院',
-        price: '280',
-        soldOut: false,
-        discount: '7折',
-        category: '舞蹈芭蕾',
-        city: '北京'
-    },
-    {
-        id: 8,
-        title: '相声小品专场',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+8',
-        date: '2024-03-22 19:00',
-        location: '深圳·音乐厅',
-        price: '120',
-        soldOut: false,
-        discount: null,
-        category: '曲艺相声',
-        city: '深圳'
-    },
-    {
-        id: 9,
-        title: '儿童剧《白雪公主》',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+9',
-        date: '2024-03-23 14:00',
-        location: '杭州·浙江小百花越剧院',
-        price: '80',
-        soldOut: false,
-        discount: null,
-        category: '儿童亲子',
-        city: '杭州'
-    },
-    {
-        id: 10,
-        title: '2024演唱会新春特别场',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+10',
-        date: '2024-03-24 20:00',
-        location: '北京·鸟巢',
-        price: '380',
-        soldOut: false,
-        discount: null,
-        category: '演唱会',
-        city: '北京'
-    },
-    {
-        id: 11,
-        title: '话剧《局外人》',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+11',
-        date: '2024-03-25 19:30',
-        location: '南京·南京文化艺术中心',
-        price: '198',
-        soldOut: false,
-        discount: null,
-        category: '话剧歌剧',
-        city: '南京'
-    },
-    {
-        id: 12,
-        title: '成都音乐嘉年华',
-        image: 'https://dummyimage.com/200x280/FF1268/FFFFFF?text=Event+12',
-        date: '2024-03-26 18:30',
-        location: '成都·宽窄巷子广场',
-        price: '128',
-        soldOut: false,
-        discount: null,
-        category: '音乐节',
-        city: '成都'
-    }
-])
+// 切换为后端数据
+const events = ref([])
+const total = ref(0)
+const apiPages = ref(1)
 
-// 筛选后的演出
+const BASE_URL = 'http://193.112.68.157:8080'
+
+const formatResourceUrl = (url) => {
+    if (!url) return ''
+    if (typeof url !== 'string') return ''
+    if (url.startsWith('http')) return url
+    // 防止重复斜杠
+    if (url.startsWith('/')) return BASE_URL + url
+    return BASE_URL + '/' + url
+}
+
+const mapRecordToEvent = (rec) => {
+    // 后端可能使用不同字段名保存海报：image / poster / cover
+    const posterCandidate = rec.image || rec.poster || rec.cover || ''
+    let imageUrl = posterCandidate ? formatResourceUrl(posterCandidate) : ''
+    if (!imageUrl) {
+        imageUrl = `https://dummyimage.com/200x280/FF1268/FFFFFF?text=${encodeURIComponent(rec.title || 'Event')}`
+    }
+
+    return {
+        id: rec.id,
+        title: rec.title,
+        image: imageUrl,
+        date: rec.ticketStartTime || rec.createdTime || '',
+        location: rec.city ? `${rec.city}` : '',
+        price: rec.price || '--',
+        soldOut: rec.status === 0 ? true : false,
+        discount: rec.discount || null,
+        category: rec.category || '',
+        city: rec.city || ''
+    }
+}
+
+const fetchPerformances = async () => {
+    try {
+        const params = {
+            pageNum: currentPage.value
+        }
+        // 将路由或页面中的搜索关键词传给后端
+        if (selectedCity.value && selectedCity.value !== '全国') params.city = selectedCity.value
+        if (selectedCategory.value && selectedCategory.value !== '全部') params.category = selectedCategory.value
+
+        let res
+        if (searchQuery.value && String(searchQuery.value).trim() !== '') {
+            // 使用专用搜索接口：按演出名/明星名查询
+            const kw = encodeURIComponent(String(searchQuery.value).trim())
+            res = await request.get(`/api/performance/search/${kw}`, { params })
+        } else {
+            res = await request.get('/api/performance', { params })
+        }
+        if (res && res.code === 200 && res.data) {
+            const data = res.data
+            total.value = data.total || (data.records ? data.records.length : 0)
+            apiPages.value = data.pages || 1
+            events.value = (data.records || []).map(mapRecordToEvent)
+        } else {
+            // 后端返回异常，清空列表
+            events.value = []
+            total.value = 0
+            apiPages.value = 1
+        }
+    } catch (err) {
+        console.error('获取演出列表失败', err)
+        events.value = []
+        total.value = 0
+        apiPages.value = 1
+    }
+}
+
+
+// 筛选后的演出（当使用后端时，events 已经是按条件返回的）
 const filteredEvents = computed(() => {
+    // 前端仍保留对筛选的守护（当后端不可用时）
     let filtered = events.value
-
-    // 按城市筛选
-    if (selectedCity.value !== '全国') {
-        filtered = filtered.filter(e => e.city === selectedCity.value)
-    }
-
-    // 按分类筛选
-    if (selectedCategory.value !== '全部') {
-        filtered = filtered.filter(e => e.category === selectedCategory.value)
-    }
-
+    if (selectedCity.value !== '全国') filtered = filtered.filter(e => e.city === selectedCity.value)
+    if (selectedCategory.value !== '全部') filtered = filtered.filter(e => e.category === selectedCategory.value)
     return filtered
 })
 
-// 分页数据
-const totalPages = computed(() => Math.ceil(filteredEvents.value.length / itemsPerPage))
+// 监听路由 keyword 变化（例如从 Header 搜索框跳转过来）
+watch(() => route.query.keyword, (newK) => {
+    searchQuery.value = newK || ''
+    currentPage.value = 1
+    fetchPerformances()
+})
+
+// 总页数：优先使用后端分页信息 `apiPages`，否则本地计算
+const totalPages = computed(() => apiPages.value || Math.max(1, Math.ceil(filteredEvents.value.length / itemsPerPage)))
 
 const paginatedEvents = computed(() => {
+    // 如果后端返回了分页数据，则 events 已是当前页的数据
+    if (apiPages.value && events.value.length <= itemsPerPage) return events.value
     const start = (currentPage.value - 1) * itemsPerPage
     const end = start + itemsPerPage
     return filteredEvents.value.slice(start, end)
@@ -721,20 +666,20 @@ const selectTime = (time) => {
     .search-header {
         padding: 0;
     }
-    
+
     .filter-bar,
     .sort-bar {
         padding: 12px 20px;
         gap: 15px;
         font-size: 12px;
     }
-    
+
     .events-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 12px;
         padding: 20px;
     }
-    
+
     .search-header-top {
         padding: 12px 20px;
         font-size: 12px;

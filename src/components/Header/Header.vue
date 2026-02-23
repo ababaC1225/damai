@@ -1,5 +1,19 @@
 <script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import UserMenu from './UserMenu.vue'
+
+const router = useRouter()
+const headerSearch = ref('')
+
+const doHeaderSearch = () => {
+    const q = (headerSearch.value || '').trim()
+    if (!q) {
+        router.push('/search')
+        return
+    }
+    router.push({ path: '/search', query: { keyword: q } })
+}
 </script>
 
 <template>
@@ -402,8 +416,9 @@ import UserMenu from './UserMenu.vue'
                 <!-- 搜索框 -->
                 <div class="search-header">
                     <img class="i-search" src="//img.alicdn.com/tfs/TB1qv3jxGmWBuNjy1XaXXXCbXXa-34-36.png" alt="搜索">
-                    <input class="input-search" placeholder="搜索明星、演出、体育赛事">
-                    <div class="btn-search" data-spm="dsearchbtn2">搜索</div>
+                    <input v-model="headerSearch" @keyup.enter="doHeaderSearch" class="input-search"
+                        placeholder="搜索明星、演出、体育赛事">
+                    <div class="btn-search" data-spm="dsearchbtn2" @click="doHeaderSearch">搜索</div>
                     <div class="list-search-wrap">
                         <div class="list-search"></div>
                     </div>

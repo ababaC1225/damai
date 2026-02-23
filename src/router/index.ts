@@ -4,6 +4,7 @@ import Login from '@/views/Login/Login.vue'
 import Register from '@/views/Login/Register.vue'
 import Forget from '@/views/Login/Forget.vue'
 import SettingTable from '@/views/user/SettingTable.vue'
+import { useUserStore } from '@/stores/user'
 
 const routes = [
   {
@@ -59,6 +60,10 @@ const routes = [
     path: '/user/settingTable',
     component: SettingTable,
   },
+  {
+    path: '/search',
+    component: () => import('../views/Search/index.vue'),
+  }
 ]
 
 const router = createRouter({

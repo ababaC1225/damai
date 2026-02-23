@@ -156,6 +156,8 @@
   height: 72px;
   margin-left: 40px;
   line-height: 72px;
+  position: relative;
+  z-index: 2000; /* 保证分类链接在任何下拉之上可以被点击 */
 }
 
 .dm-header-box .recommend-header .type-recommend {

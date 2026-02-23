@@ -1,8 +1,7 @@
 <template>
   <div class="box-header user-header" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave"
     @click="handleClick">
-    <img class="i-box-header i-user"
-      :src="isLogin ? userInfo.avatar : '//img.alicdn.com/tfs/TB14UKCGQyWBuNjy0FpXXassXXa-54-54.png'" alt="用户" />
+    <img class="i-box-header i-user" :src="isLogin ? formatAvatarUrl(userInfo.avatar) : defaultAvatar" alt="用户" />
 
     <div class="span-box-header">
       {{ isLogin ? userInfo.nickname : '登录' }}
@@ -21,9 +20,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import request from '@/untils/request'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -33,6 +33,44 @@ const userInfo = computed(() => userStore.userInfo)
 
 const showMenu = ref(false)
 let hideTimer = null
+
+// 默认头像（与其他位置保持一致）
+const defaultAvatar = '//img.alicdn.com/tfs/TB14UKCGQyWBuNjy0FpXXassXXa-54-54.png'
+
+// 将相对路径转换为完整 URL（与 AccountInfo.vue 中的逻辑保持一致）
+const formatAvatarUrl = (url) => {
+  if (!url) return ''
+  if (typeof url !== 'string') return ''
+  if (url.startsWith('http')) return url
+  const baseURL = 'http://193.112.68.157:8080'
+  return baseURL + url
+}
+
+// 拉取并更新当前用户信息（用于登录后刷新完整信息）
+const fetchUserInfo = async () => {
+  try {
+    const res = await request.get('/api/user')
+    if (res && res.code === 200 && res.data) {
+      const srv = res.data
+      srv.avatar = formatAvatarUrl(srv.avatar)
+      userStore.userInfo = srv
+      userStore.persist()
+      return srv
+    }
+  } catch (err) {
+    console.error('获取用户信息失败', err)
+  }
+  return null
+}
+
+// 当组件挂载或登录状态从 false => true 时，拉取最新用户信息
+onMounted(() => {
+  if (isLogin.value) fetchUserInfo()
+})
+
+watch(isLogin, (val) => {
+  if (val) fetchUserInfo()
+})
 
 // 鼠标进入触发区
 const handleMouseEnter = () => {
