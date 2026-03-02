@@ -41,6 +41,10 @@ const routes = [
     component: () => import('../views/user/OrderList.vue'),
   },
   {
+    path: '/user/order/:id',
+    component: () => import('../views/user/OrderDetail.vue'),
+  },
+  {
     path: '/user/info',
     component: () => import('../views/user/AccountInfo.vue'),
   },
