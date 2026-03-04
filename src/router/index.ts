@@ -68,6 +68,12 @@ const routes = [
     path: '/search',
     component: () => import('../views/Search/index.vue'),
   }
+  ,
+  {
+    path: '/performance/:id',
+    name: 'PerformanceDetail',
+    component: () => import('../views/PerformanceDetail.vue'),
+  }
 ]
 
 const router = createRouter({

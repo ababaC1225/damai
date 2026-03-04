@@ -85,9 +85,9 @@
         <!-- 演出列表 -->
         <div class="events-container">
             <div v-if="events.length > 0" class="events-grid">
-                <div v-for="event in filteredEvents" :key="event.id" class="event-card">
+                <div v-for="event in paginatedEvents" :key="event.id" class="event-card" role="button" tabindex="0" @click="openDetail(event)" @keydown.enter="openDetail(event)">
                     <div class="event-image">
-                        <img :src="event.image" :alt="event.title">
+                        <img :src="event.image" :alt="event.title" @click.stop="openDetail(event)">
                         <div class="event-status" v-if="event.soldOut" style="background: rgba(0,0,0,0.5);">
                             <span>已售罄</span>
                         </div>
@@ -95,7 +95,7 @@
                             <span>{{ event.discount }}</span>
                         </div>
                     </div>
-                    <div class="event-info">
+                    <div class="event-info" @click.stop="openDetail(event)">
                         <h3 class="event-title">{{ event.title }}</h3>
                         <p class="event-date">
                             <img src="https://img.alicdn.com/tfs/TB1XHDuxNGYBuNjy0FnXXX5lpXa-28-32.png" alt="日期"
@@ -133,7 +133,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import request from '@/untils/request'
 import SearchBar from '@/components/SearchBar/SearchBar.vue'
 
@@ -142,6 +142,7 @@ const itemsPerPage = 12
 
 // 来自路由的关键词（Header 搜索框会通过路由 query 传入）
 const route = useRoute()
+const router = useRouter()
 const searchQuery = ref('')
 
 const selectedCity = ref('全国')
@@ -175,6 +176,17 @@ const handleDocumentClick = (e) => {
     if (showTimeDropdown.value && timeRef.value && !timeRef.value.contains(target)) {
         showTimeDropdown.value = false
     }
+}
+
+const openDetail = (event) => {
+    if (!event) return
+    const eid = event.id || event.performanceId || event.performance_id || event.performanceID || (event.performance && event.performance.id)
+    if (!eid) {
+        console.warn('openDetail: 无法找到演出 id', event)
+        return
+    }
+    console.log('openDetail ->', eid)
+    router.push({ name: 'PerformanceDetail', params: { id: String(eid) } })
 }
 
 onMounted(() => document.addEventListener('click', handleDocumentClick, true))

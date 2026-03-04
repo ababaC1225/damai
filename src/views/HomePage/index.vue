@@ -10,6 +10,8 @@
             :viewAllLink="item.link"
             :mainEvent="item.mainEvent"
             :subEvents="item.subEvents"
+            @main-click="onCardMainClick"
+            @sub-click="onCardSubClick"
         />
 
     </div>
@@ -25,6 +27,20 @@ import { getEventList } from '@/apis/event';
 const contentCards = ref([]);
 
 onMounted(async () => {
-  contentCards.value = await getEventList();
+    contentCards.value = await getEventList();
 });
+
+// 处理内容卡片内事件点击，跳转到演出详情页
+function onCardMainClick(event) {
+    if (!event) return
+    const id = event.id || event.performanceId || event.id
+    if (id) {
+        // 跳转到详情页
+        window.location.href = `/performance/${id}`
+    }
+}
+
+function onCardSubClick(event) {
+    onCardMainClick(event)
+}
 </script>
