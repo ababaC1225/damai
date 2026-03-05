@@ -190,6 +190,7 @@ async function onBuy() {
 	isBuying.value = true
 	try {
 		const payload = {
+			performanceId: perfId,//添加演出场次
 			sessionId: selectedSessionId.value,
 			ticketTierId: selectedTierId.value,
 			quantity: 1
