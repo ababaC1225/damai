@@ -2,7 +2,6 @@
   <div class="box-header user-header" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave"
     @click="handleClick">
     <img class="i-box-header i-user" :src="isLogin ? formatAvatarUrl(userInfo.avatar) : defaultAvatar" alt="用户" />
-
     <div class="span-box-header">
       {{ isLogin ? userInfo.nickname : '登录' }}
 
@@ -54,7 +53,7 @@ const fetchUserInfo = async () => {
       const srv = res.data
       srv.avatar = formatAvatarUrl(srv.avatar)
       userStore.userInfo = srv
-      userStore.persist()
+      if (typeof userStore.persist === 'function') userStore.persist()
       return srv
     }
   } catch (err) {
@@ -91,7 +90,6 @@ const handleMouseLeave = () => {
     showMenu.value = false
   }, 50)
 }
-
 const handleLogout = () => {
   userStore.logout()
   showMenu.value = false
